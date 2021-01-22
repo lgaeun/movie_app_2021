@@ -1,63 +1,61 @@
-import React from 'react';
-import PropTypes from "prop-types";
- //props
-function Food({name, picture, rating}){
-  
-  return <div>
-    <h2> I like {name} </h2>
-    <h4> I got {rating}/6.0</h4>
-  </div>
+import React from "react";
+import axios from "axios";
+import Movie from "./movie";
+import "./App.css";
+
+class App extends React.Component {
+  state = {
+    isLoading: true,
+    movies: [],
+  };
+  getMoives = async () => {
+    const {
+      data: {
+        data: { movies }, //axios가 주는 데이터를 movies변수로 get
+      },
+    } = await axios.get(
+      "https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating"
+    ); //axios가 로드하는데 느리므로 await를 앞에 붙여줌. 그리고 이 function은 async임 = 시간이 조금 걸리는 func이니 기다려야 함
+    this.setState({ movies, isLoading: false });
+  };
+  componentDidMount() {
+    this.getMoives();
+    // 6초의 timeout을 만들기 ,fetch data 구현 -> 그 이후 'we are ready'가 나오면 render할 수 있게
+    // setTimeout(() => {
+    //   this.setState({ isLoading : false});
+    // }, 6000);
+  }
+  render() {
+    const { isLoading, movies } = this.state;
+    return (
+      <section className="container">
+        <div>
+          {isLoading ? (
+            <div className="lodaer">
+              <span className="loader__text">Loading...</span>
+            </div>
+          ) : (
+            <div className="movies">
+              {movies.map((movie) => {
+                console.log(movie);
+                return (
+                  <Movie
+                    key={movie.id}
+                    id={movie.id}
+                    year={movie.year}
+                    title={movie.title}
+                    summary={movie.summary}
+                    poster={movie.medium_cover_image}
+                    genres={movie.genres}
+                  />
+                );
+              })}
+            </div>
+          )}{" "}
+        </div>
+      </section>
+    );
+  }
 }
-//component = html을 리턴하는 function
-
-//descsription of props that i want to get
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  rating: PropTypes.number // number or undefined 만 허용 
-}
-
-const foodILike = [
-  {
-    id:1,
-    name: "kimchi",
-    rating: 4.1
-
-  },
-  {
-    id: 2,
-    name: "kimbap",
-    rating: 2
-  },
-  {
-    id:3,
-    name: "sushi",
-    rating: 5.6
-  },
-  {
-    id:4,
-    name: "pissa",
-    rating: 4.3
-  },
-]
-
-function renderFood(dish){
-  // console.log(dish);
-  return <Food name = {dish.name} />
-}
-
-function App() {
-  return (
-    <div>
-      {/* {foodILike.map(renderFood)} */}
-      {foodILike.map(dish => (
-        <Food 
-        key={dish.id} 
-        name={dish.name} 
-        rating={dish.rating} />
-      ))}
-    </div>
-  );
-}
-
 
 export default App;
