@@ -1,61 +1,22 @@
 import React from "react";
-import axios from "axios";
-import Movie from "./movie";
-import "./App.css";
+import { HashRouter, Route } from "react-router-dom";
+import About from "./routes/About";
+import Home from "./routes/Home";
+import Detail from "./routes/Detail";
+import Navigation from "./components/Navigation";
+// import "./App.css";
 
-class App extends React.Component {
-  state = {
-    isLoading: true,
-    movies: [],
-  };
-  getMoives = async () => {
-    const {
-      data: {
-        data: { movies }, //axios가 주는 데이터를 movies변수로 get
-      },
-    } = await axios.get(
-      "https://yts-proxy.nomadcoders1.now.sh/list_movies.json?sort_by=rating"
-    ); //axios가 로드하는데 느리므로 await를 앞에 붙여줌. 그리고 이 function은 async임 = 시간이 조금 걸리는 func이니 기다려야 함
-    this.setState({ movies, isLoading: false });
-  };
-  componentDidMount() {
-    this.getMoives();
-    // 6초의 timeout을 만들기 ,fetch data 구현 -> 그 이후 'we are ready'가 나오면 render할 수 있게
-    // setTimeout(() => {
-    //   this.setState({ isLoading : false});
-    // }, 6000);
-  }
-  render() {
-    const { isLoading, movies } = this.state;
-    return (
-      <section className="container">
-        <div>
-          {isLoading ? (
-            <div className="lodaer">
-              <span className="loader__text">Loading...</span>
-            </div>
-          ) : (
-            <div className="movies">
-              {movies.map((movie) => {
-                console.log(movie);
-                return (
-                  <Movie
-                    key={movie.id}
-                    id={movie.id}
-                    year={movie.year}
-                    title={movie.title}
-                    summary={movie.summary}
-                    poster={movie.medium_cover_image}
-                    genres={movie.genres}
-                  />
-                );
-              })}
-            </div>
-          )}{" "}
-        </div>
-      </section>
-    );
-  }
-}
+function App() {
+  return (
+    <HashRouter>
+      {/* Router 밖에서는 react navigation Link를 쓸 수 없다  */}
+      <Navigation />
+      <Route path="/" exact={true} component={Home} />
+      <Route path="/about" component={About} />
+      <Route path="/movie-detail" component={Detail} />
+      {/* /movie/:id 로 해서 movie 아이디마다 different url 줄 수 도 있음 */}
+    </HashRouter>
+  );
+} // 저 url로 가면 about이란 컴포넌트를 보여준다
 
 export default App;
